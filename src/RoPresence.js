@@ -91,40 +91,6 @@ async function setActivity(placeInfo, placeIconURL) {
     });
 };
 
-// Sets the RPC Application name on the Discord Developer Portal website
-function SetApplicationName(name) {
-    /*
-
-        </> Function usage </>
-
-            This function sets our RPC application name to the provided "name" parameter. This is done so that our DiscordRPC API uses the approriate naming protocol for our currently
-            played game. Is this against Discord TOS? Perhaps... Does it stop me? Not at all MWAHAHAHAHA (this is purely for research purposes, I do not have malicious intent)
-
-        </> About our Headers </>
-            
-            This function makes a request within the Discord Developer Portal website. We call this API endpoint because it allows us to change the name of our RPC application!
-            However, this endpoint specifically states that we need an authorization token and our client's cookie in order to allow changes to occur.
-
-    */
-
-    axios.put(`https://discord.com/api/v9/applications/1035903512313348136`,
-        {
-            "name": name,
-        },      
-
-        {
-            "headers": {
-                "cookie": `__dcfduid=${DDPCookie}`,
-                "authorization": "MTAwNDU0OTM2NDczNzM4NDUwOQ.G6nqE9.kKYuFsxqp1Fz95F8157Fk59BZ82dn6XPHnetqs"
-            }
-        }
-    )
-        
-    .catch(function(err){
-        console.error(`Discord Application Renaming failed: \"${err}\"`)
-    });
-};
-
 // Returns information about our client's in game presence!
 function GetClientGamePresence(callback) {
     axios.post(`https://presence.roblox.com/v1/presence/users`, // Here we preferrably use axios in order to "spoof" our RobloSecurity token
