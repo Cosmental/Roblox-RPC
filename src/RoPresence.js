@@ -9,18 +9,19 @@
 */
 
 // Modules
-// const XMLHttpRequest = require('xhr2');
+const XMLHttpRequest = require('xhr2'); // DO NOT REMOVE! Axios depends on XMLHttpRequest
 const DiscordRPC = require('discord-rpc');
 const axios = require(`axios`);
 
 // Constants
+const DDPCookie = "bb8799f02f2e11ec91ddc17f80e36901; __sdcfduid=bb8799f12f2e11ec91ddc17f80e3690169928edd5a1eb8b64bb368f70f621031cff9256125579309fa487e726a276e23; locale=en-US; _ga=GA1.2.1974672028.1634463831; __stripe_mid=60e9361c-d7b9-437e-a718-3ff7777977993072a7; _gcl_au=1.1.1645921179.1660747250; __cfruid=7c8ee08150788c83fcdeff45fec828713bd3706b-1666039719; _gid=GA1.2.564753888.1666789492; OptanonConsent=isIABGlobal=false&datestamp=Fri+Oct+28+2022+20:08:53+GMT-0400+(Eastern+Daylight+Time)&version=6.33.0&hosts=&landingPath=NotLandingPage&groups=C0001:1,C0002:1,C0003:1&AwaitingReconsent=false; __cf_bm=MFNoxqqFwF3u8TU5bpPUKekL157ZpyemlOhuWXoH79M-1667057602-0-Ae8fZ+T41YiDO9faz5GwxKUKkguwXOUYYvDXSILknNI+dcBoxxO6IaKyQ8JubzpzK+aclituzIoOZpo6MALUD+Cm1DzTQ4pKHGvCe4ntukILGdN34to1CItb/GXjgMt6nA=="
 const clientId = "1035903512313348136" // This is the OAuth2-ID of our RPC application on the Discord Developer Portal website
-const RPC = new DiscordRPC.Client({ transport : "ipc" });
 
 const RobloxCookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_C4CC2C18112C63913E686D1E0AE57146F08EA41C3916A0F7C5FF1C5471C522D0EA7CB9E5D53EB12CD041310068E2C213745687A01BB465015F9FDED5CCB5D16577BC5FDD0998CBFC7E4D4221F30617AD294A45A46E02392DFB75B714972F1118892B664C9BD87E48F4D10D75DBCE275B82042210AA0E047B21D61CBA04DE5CA9287EAFE404529802156AE19838A3C03A620A125FA367042F74CBAF93D1AB4B69A9F823A00F514B9E392A8CC8086730DCFD23F4EE193B258CDFB08078CA288CE29E805B0EBECC537DF51AD02EE03A7687188ED350EDBDFDCA95F3ACF9B02E7DB7C88C3D5FF4320B48FE74FC9992490F70E0B802DBC6FE100A7CCF840963AB5E10645CEE2B3C7BF48EB43126E38C62B6818519FC365B46B78AC69358E8A2FCDA3A50407A6DA76C3C1741D6B0FB47357D1E0D1FABDA05234A0D695F73BE24C3217C1741BF5311DA0585E27D9E864C6537634FE644F27315AFA021E5A85C0A39523083E5ADDBD172D631D78A54D1CBF4D30C89ADA3EF" // Our ROBLOSECURITY cookie will allow us to make API calls!
 const RobloxUserID = 876817222 // This is our client's Roblox userId
 
 const API_UPDATE_QUERY = 5 // This determines how much time (in seconds) we are allowed to make calls to the roblox API endpoint
+const RPC = new DiscordRPC.Client({ transport : "ipc" });
 
 // States
 var previouslyPlayedPlace
@@ -44,6 +45,8 @@ RPC.on('ready', async() => {
             previouslyPlayedPlace = presenceData.placeId
     
             GetPlaceInfo(presenceData.placeId, placeInfo => {
+                SetApplicationName(presenceData.lastLocation);
+
                 GetUniverseIconURL(presenceData.universeId, universeURL => {
                     setActivity(placeInfo, universeURL);
                 });
@@ -89,38 +92,38 @@ async function setActivity(placeInfo, placeIconURL) {
 };
 
 // Sets the RPC Application name on the Discord Developer Portal website
-// function SetApplicationName(name) {
-//     /*
+function SetApplicationName(name) {
+    /*
 
-//         </> Function usage </>
+        </> Function usage </>
 
-//             This function sets our RPC application name to the provided "name" parameter. This is done so that our DiscordRPC API uses the approriate naming protocol for our currently
-//             played game. Is this against Discord TOS? Perhaps... Does it stop me? Not at all MWAHAHAHAHA (this is purely for research purposes, I do not have malicious intent)
+            This function sets our RPC application name to the provided "name" parameter. This is done so that our DiscordRPC API uses the approriate naming protocol for our currently
+            played game. Is this against Discord TOS? Perhaps... Does it stop me? Not at all MWAHAHAHAHA (this is purely for research purposes, I do not have malicious intent)
 
-//         </> About our Headers </>
+        </> About our Headers </>
             
-//             This function makes a request within the Discord Developer Portal website. We call this API endpoint because it allows us to change the name of our RPC application!
-//             However, this endpoint specifically states that we need an authorization token and our client's cookie in order to allow changes to occur.
+            This function makes a request within the Discord Developer Portal website. We call this API endpoint because it allows us to change the name of our RPC application!
+            However, this endpoint specifically states that we need an authorization token and our client's cookie in order to allow changes to occur.
 
-//     */
+    */
 
-//     let XMLRequest = new XMLHttpRequest
+    axios.put(`https://discord.com/api/v9/applications/1035903512313348136`,
+        {
+            "name": name,
+        },      
 
-//     XMLRequest.open("PUT", "https://discord.com/api/v9/applications/1035703868828438528");
-//     XMLRequest.setRequestHeader("authorization", "OTA4MTgzMjY2MDI3MjQ1NTc4.GRobP3.zJD7MgGexOYzjomAQLn4_iHyJHCun9rOVn-wrE");
-//     XMLRequest.setRequestHeader("cookie", "__dcfduid=bb8799f02f2e11ec91ddc17f80e36901; __sdcfduid=bb8799f12f2e11ec91ddc17f80e3690169928edd5a1eb8b64bb368f70f621031cff9256125579309fa487e726a276e23; locale=en-US; _ga=GA1.2.1974672028.1634463831; __stripe_mid=60e9361c-d7b9-437e-a718-3ff7777977993072a7; _gcl_au=1.1.1645921179.1660747250; __cfruid=7c8ee08150788c83fcdeff45fec828713bd3706b-1666039719; _gid=GA1.2.564753888.1666789492; OptanonConsent=isIABGlobal=false&datestamp=Fri+Oct+28+2022+20:08:53+GMT-0400+(Eastern+Daylight+Time)&version=6.33.0&hosts=&landingPath=NotLandingPage&groups=C0001:1,C0002:1,C0003:1&AwaitingReconsent=false; __cf_bm=05eD.jcQyMAnz.nhY_ssAs8ysdRLqWlA1Z44POYAyHI-1667002134-0-AVXmKWjjUD4T112ETjBmJj4uvuZleBJdsQYzZkFwxok51RsYifnJtZRP9mDATzjnPUEm1WuLWKbE849NIDKEFHWQkhNTchFaqQr9UJynX7qts+FCFJXDLelgbIenAynjrA==")
-//     XMLRequest.setRequestHeader("Content-Type", "application/json");
-
-//     XMLRequest.onreadystatechange = function () {
-//         if (XMLRequest.status != "400") {
-//             console.log(`DISCORD REQUEST STATUS \"${XMLRequest.status}\": ${XMLRequest.responseText}`);
-//         }
-//     };
-
-//     XMLRequest.send(JSON.stringify({
-//         "name": name
-//     }));
-// };
+        {
+            "headers": {
+                "cookie": `__dcfduid=${DDPCookie}`,
+                "authorization": "MTAwNDU0OTM2NDczNzM4NDUwOQ.G6nqE9.kKYuFsxqp1Fz95F8157Fk59BZ82dn6XPHnetqs"
+            }
+        }
+    )
+        
+    .catch(function(err){
+        console.error(`Discord Application Renaming failed: \"${err}\"`)
+    });
+};
 
 // Returns information about our client's in game presence!
 function GetClientGamePresence(callback) {
@@ -134,8 +137,8 @@ function GetClientGamePresence(callback) {
     )
 
     .then(callback)    
-    .catch(function (err){
-        console.log(`ROBLOX PRESENCE REQUEST STATUS \"${err.response.status}\": ${err.response.responseText}`)
+    .catch(function(err){
+        console.error(`Presence request failed: \"${err}\"`)
     });
 };
 
@@ -143,8 +146,8 @@ function GetClientGamePresence(callback) {
 function GetUniverseIconURL(universeId, callback) {
     axios.get(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&size=512x512&format=Png&isCircular=false`)
         .then(response => callback(response.data.data[0].imageUrl))    
-        .catch(function (err){
-            console.log(`ROBLOX UNIVERSE ICON STATUS \"${err.response.status}\": ${err.response.responseText}`)
+        .catch(function(err){
+            console.error(`Game Universe Icon request failed: \"${err.response.status}\"`)
         });
 };
 
@@ -155,7 +158,7 @@ function GetPlaceInfo(placeId, callback) {
         }
     })
         .then(response => callback(response.data[0]))
-        .catch(function (err){
-            console.log(`ROBLOX PLACE DETAILS STATUS \"${err.response.status}\": ${err.response.responseText}`)
+        .catch(function(err){
+            console.error(`Failed to retrieve Place Info: \"${err}\"`)
         });
 };
