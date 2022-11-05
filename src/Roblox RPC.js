@@ -9,19 +9,18 @@
 */
 
 // Modules
-const XMLHttpRequest = require('xhr2'); // DO NOT REMOVE! Axios depends on XMLHttpRequest
 const DiscordRPC = require('discord-rpc');
-
-const appSettings = require(`./settings`);
 const axios = require(`axios`);
 
+const settings = require(`./configuration.json`);
+
 // Constants
-const clientId = appSettings.DiscordApplicationClientId // This is the OAuth2-ID of our RPC application on the Discord Developer Portal website
+const RobloxCookie = settings.ROBLOSECURITY // Our ROBLOSECURITY cookie will allow us to make API calls!
+const RobloxUserID = settings.UserId // This is our client's Roblox userId
 
-const RobloxCookie = appSettings.ROBLOSECURITY // Our ROBLOSECURITY cookie will allow us to make API calls!
-const RobloxUserID = appSettings.UserId // This is our client's Roblox userId
-
+const clientId = settings.DiscordApplicationClientId // This is the OAuth2-ID of our RPC application on the Discord Developer Portal website
 const API_UPDATE_QUERY = 1 // This determines how much time (in seconds) we are allowed to make calls to the roblox API endpoint
+
 const RPC = new DiscordRPC.Client({ transport : "ipc" });
 
 // States
@@ -80,6 +79,7 @@ RPC.on('ready', async() => {
         setTimeout(CheckEndpoint, API_UPDATE_QUERY * 1000);
     };
     
+    console.log("RPC Is running!");
     CheckEndpoint();
 });
 
@@ -90,18 +90,28 @@ RPC.login({ clientId }).catch(err => console.error(err));
 // Sets our current activity using the provided parameters
 async function setActivity(presenceType, placeInfo, placeIconURL) {
     if (!RPC) return;
+    
+    let presenceImage = (
+        (presenceType === 2) ? `https://static.wikia.nocookie.net/logopedia/images/1/1e/Roblox_2022_%28Icon%29.png/revision/latest/scale-to-width-down/200?cb=20220831193228` // Roblox Game
+            : `https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Roblox_Studio_logo_2021_present.svg/2048px-Roblox_Studio_logo_2021_present.svg.png` // Roblox Studio
+            );
 
-    let presenceImage = (presenceType == 2) ? "https://static.wikia.nocookie.net/logopedia/images/1/1e/Roblox_2022_%28Icon%29.png/revision/latest/scale-to-width-down/200?cb=20220831193228" : "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Roblox_Studio_logo_2021_present.svg/2048px-Roblox_Studio_logo_2021_present.svg.png"
+    console.log(presenceImage);
+
+    let presenceText = (
+        (presenceType === 2) ? "Playing"
+            : "Developing"
+        );
 
     RPC.setActivity({
-        "details": `Playing ${placeInfo.name}`,
+        "details": `${presenceText}: ${placeInfo.name}`,
         "state": `By ${placeInfo.builder}`,
         "startTimestamp": applicationStartTime,
 
         "largeImageKey": placeIconURL,
         "largeImageText": placeInfo.name,
         "smallImageKey": presenceImage,
-        "smallImageText": `Roblox`,
+        "smallImageText": (presenceType == 2) ? "Roblox" : "Roblox Studio",
 
         "instance": false,
         "buttons": [
