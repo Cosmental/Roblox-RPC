@@ -1,3 +1,7 @@
+:: Name --> Cos
+:: Date --> 11/5/2022
+:: Description --> Basic installer for Roblox RPC! Not entirely sure how to turn it into an EXE file but its a WIP :D
+
 @ECHO off
 ECHO.
 
