@@ -31,59 +31,74 @@ var previousUniverse
 
 // Main
 
-DiscordRPC.register(clientId);
+axios.get('https://www.roblox.com/mobileapi/userinfo', { // ROBLOSECURITY Validation
+    "headers": {
+        "Cookie": `.ROBLOSECURITY=${RobloxCookie}`
+    }
+}).then(result => {
+    let isValidCookie = (typeof(result.data) == 'object'); // Valid cookies should return an object/table as a response header
 
-RPC.on('ready', async() => {
-    function CheckEndpoint() {
-        GetClientGamePresence(response => {
-            let presenceData = response.data.userPresences[0];
-            let presenceType = presenceData.userPresenceType // 0 = Offline (no action), 1 = Website (no action), 2 = Playing Game (action), 3 = In Studio (action)
-    
-            // Unwanted Presence handling (User is offline or on the Website)
-            if (presenceType < 2) {
-                previousPlaceId = null
-                previousUniverse = null
-
-                RPC.clearActivity();
-                return;
-            };
-            
-            // Active Presence Handling
-            if (previousPlaceId == presenceData.placeId) return; // We dont need to update already existing info!
-            previousPlaceId = presenceData.placeId
-            
-            if (presenceType == 2) {
-                if (previousUniverse != presenceData.universeId) {
-                    previousUniverse = presenceData.universeId
-                    applicationStartTime = Date.now();
-                };
-        
-                GetPlaceInfo(presenceData.placeId, placeInfo => {
-                    GetUniverseIconURL(presenceData.universeId, universeURL => {
-                        setActivity(presenceType, placeInfo, universeURL);
-                    });
-                });
-            } else if (presenceType == 3 && settings.StudioPresenceEnabled) {
-                applicationStartTime = Date.now();
-        
-                GetPlaceInfo(presenceData.placeId, placeInfo => {
-                    GetUniverseIconURL(placeInfo.universeId, universeURL => {
-                        setActivity(presenceType, placeInfo, universeURL);
-                    });
-                });
-            } else {
-                console.error(`Unknown Presence type recieved! (got ${presenceType})`);
-            };
-        });
-    
-        setTimeout(CheckEndpoint, API_UPDATE_QUERY * 1000);
+    if (!isValidCookie) {
+        throw new Error("The provided ROBLOSecurity Cookie was invalid! ( Are you sure you entered a valid ROBLOSecurity cookie? )")
     };
-    
-    console.log("RPC Is running!");
-    CheckEndpoint();
-});
 
-RPC.login({ clientId }).catch(err => console.error(err));
+    // RPC Login
+    DiscordRPC.register(clientId);
+
+    RPC.on('ready', async() => {
+        function CheckEndpoint() {
+            GetClientGamePresence(response => {
+                let presenceData = response.data.userPresences[0];
+                let presenceType = presenceData.userPresenceType // 0 = Offline (no action), 1 = Website (no action), 2 = Playing Game (action), 3 = In Studio (action)
+        
+                // Unwanted Presence handling (User is offline or on the Website)
+                if (presenceType < 2) {
+                    previousPlaceId = null
+                    previousUniverse = null
+
+                    RPC.clearActivity();
+                    return;
+                };
+                
+                // Active Presence Handling
+                if (previousPlaceId == presenceData.placeId) return; // We dont need to update already existing info!
+                previousPlaceId = presenceData.placeId
+                
+                if (presenceType == 2) {
+                    if (previousUniverse != presenceData.universeId) {
+                        previousUniverse = presenceData.universeId
+                        applicationStartTime = Date.now();
+                    };
+            
+                    GetPlaceInfo(presenceData.placeId, placeInfo => {
+                        GetUniverseIconURL(presenceData.universeId, universeURL => {
+                            setActivity(presenceType, placeInfo, universeURL);
+                        });
+                    });
+                } else if (presenceType == 3 && settings.StudioPresenceEnabled) {
+                    applicationStartTime = Date.now();
+            
+                    GetPlaceInfo(presenceData.placeId, placeInfo => {
+                        GetUniverseIconURL(placeInfo.universeId, universeURL => {
+                            setActivity(presenceType, placeInfo, universeURL);
+                        });
+                    });
+                } else {
+                    throw new Error(`Unknown Presence type recieved! (got ${presenceType})`);
+                };
+            });
+        
+            setTimeout(CheckEndpoint, API_UPDATE_QUERY * 1000);
+        };
+        
+        console.log("RPC Is running!");
+        CheckEndpoint();
+    });
+
+    RPC.login({ clientId }).catch(err => {
+        throw new Error(`Roblox RPC Initialization Issue ${err}`);
+    });
+});
 
 // Functions
 
@@ -95,8 +110,6 @@ async function setActivity(presenceType, placeInfo, placeIconURL) {
         (presenceType === 2) ? `https://static.wikia.nocookie.net/logopedia/images/1/1e/Roblox_2022_%28Icon%29.png/revision/latest/scale-to-width-down/200?cb=20220831193228` // Roblox Game
             : `https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Roblox_Studio_logo_2021_present.svg/2048px-Roblox_Studio_logo_2021_present.svg.png` // Roblox Studio
             );
-
-    console.log(presenceImage);
 
     let presenceText = (
         (presenceType === 2) ? "Playing"
@@ -141,7 +154,7 @@ function GetClientGamePresence(callback) {
 
     .then(callback)    
     .catch(function(err){
-        console.error(`Presence request failed: \"${err}\"`)
+        throw new Error(`Presence request failed: \"${err}\"`)
     });
 };
 
@@ -150,7 +163,7 @@ function GetUniverseIconURL(universeId, callback) {
     axios.get(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeId}&size=512x512&format=Png&isCircular=false`)
         .then(response => callback(response.data.data[0].imageUrl))    
         .catch(function(err){
-            console.error(`Game Universe Icon request failed: \"${err.response.status}\"`)
+            throw new Error(`Game Universe Icon request failed: \"${err.response.status}\"`);
         });
 };
 
@@ -162,6 +175,6 @@ function GetPlaceInfo(placeId, callback) {
     })
         .then(response => callback(response.data[0]))
         .catch(function(err){
-            console.error(`Failed to retrieve Place Info: \"${err}\"`)
+            throw new Error(`Failed to retrieve Place Info: \"${err}\"`);
         });
 };
