@@ -18,7 +18,7 @@ const settings = require(`./configuration.json`);
 const RobloxCookie = settings.ROBLOSECURITY // Our ROBLOSECURITY cookie will allow us to make API calls!
 const RobloxUserID = settings.UserId // This is our client's Roblox userId
 
-const clientId = settings.DiscordApplicationClientId // This is the OAuth2-ID of our RPC application on the Discord Developer Portal website
+const clientId = settings.AppClientID // This is the OAuth2-ID of our RPC application on the Discord Developer Portal website
 const API_UPDATE_QUERY = 1 // This determines how much time (in seconds) we are allowed to make calls to the roblox API endpoint
 
 const RPC = new DiscordRPC.Client({ transport : "ipc" });
@@ -63,7 +63,7 @@ RPC.on('ready', async() => {
                         setActivity(presenceType, placeInfo, universeURL);
                     });
                 });
-            } else if (presenceType == 3) {
+            } else if (presenceType == 3 && settings.StudioPresenceEnabled) {
                 applicationStartTime = Date.now();
         
                 GetPlaceInfo(presenceData.placeId, placeInfo => {
