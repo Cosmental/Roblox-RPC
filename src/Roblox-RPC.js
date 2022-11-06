@@ -130,7 +130,7 @@ async function setActivity(presenceType, placeInfo, placeIconURL) {
         "buttons": [
             {
                 label: `Get Roblox RPC`,
-                url: `https://github.com/Cosmental`
+                url: `https://github.com/Cosmental/Roblox-RPC`
             },
 
             {
