@@ -6,7 +6,7 @@ that records your roblox gameplay and studio activity!
 ![image](https://user-images.githubusercontent.com/52884117/200638681-1d598a8e-249d-4ec3-8c76-41c17daaa620.png)
 ![image](https://user-images.githubusercontent.com/52884117/200639261-ff78abd2-afda-4e40-ad38-914724e3f3e7.png)
 
-You can download the application [**here**]() or dig into the [**source code**]() for yourself!
+You can download the application [**here!**](https://github.com/Cosmental/Roblox-RPC/releases/tag/Roblox)
 
 **NOTE:** You should have [NodeJS](https://nodejs.org/en/download/) and [git](https://git-scm.com/downloads) installed for repository updates/downloading!
 
